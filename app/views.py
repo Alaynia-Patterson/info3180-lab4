@@ -1,4 +1,5 @@
 import os
+from flask import send_from_directory
 from app import app, db, login_manager
 from flask import render_template, request, redirect, url_for, flash, session, abort
 from flask_login import login_user, logout_user, current_user, login_required
@@ -132,3 +133,38 @@ def add_header(response):
 def page_not_found(error):
     """Custom 404 page."""
     return render_template('404.html'), 404
+
+
+
+
+def get_uploaded_images():
+    """Retrieve a list of uploaded image filenames from the uploads folder."""
+    upload_folder = os.path.join(app.root_path, 'uploads')  
+    image_files = []
+
+    # Ensure the directory exists
+    if not os.path.exists(upload_folder):
+        os.makedirs(upload_folder)
+
+    # Iterate through the uploads folder and get file names
+    for file in os.listdir(upload_folder):
+        if file.lower().endswith(('.png', '.jpg', '.jpeg')):  # Ensure it's an image
+            image_files.append(file)
+
+    return image_files  # Return the list of image filenames
+
+
+@app.route('/uploads/<filename>')
+def get_image(filename):
+    """Serve an uploaded image by filename."""
+    return send_from_directory(os.path.join(app.root_path, 'uploads'), filename)
+
+
+
+@app.route('/files')
+@login_required
+def files():
+    """Display a list of uploaded images."""
+    image_list = get_uploaded_images()  # Get uploaded images
+    return render_template('files.html', images=image_list)  # Pass images to template
+
