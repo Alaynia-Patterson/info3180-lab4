@@ -1,5 +1,5 @@
 from . import db
-# Import from werkzeug.security
+# Import check_password_hash
 from werkzeug.security import generate_password_hash 
 
 class UserProfile(db.Model):
